@@ -1,0 +1,40 @@
+:root{
+  --bg: #f6f9fb;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #0ea5a4; /* teal-ish, not purple */
+  --danger: #ef4444;
+}
+body{font-family: Inter, system-ui, Arial, sans-serif;background:var(--bg);color:var(--text);margin:0;padding:20px}
+.header{max-width:900px;margin:0 auto 16px}
+.app{max-width:900px;margin:0 auto}
+.card{background:var(--card);padding:16px;border-radius:8px;box-shadow:0 1px 3px rgba(2,6,23,0.06)}
+.user-form{display:flex;gap:8px;margin-bottom:12px}
+.user-form input{flex:1;padding:8px;border:1px solid #e6edf3;border-radius:6px}
+.user-form .form-row{display:flex;gap:8px;width:100%}
+.btn{padding:8px 12px;border-radius:6px;border:none;cursor:pointer}
+.btn.primary{background:var(--accent);color:white}
+.btn.secondary{background:transparent;border:1px solid #cbd5e1;color:var(--text)}
+.edit-row{display:flex;flex-direction:row;gap:8px;align-items:center;width:100%}
+.edit-input{padding:8px;border:1px solid #e6edf3;border-radius:6px}
+.error-text{color:var(--danger);font-size:0.85em;margin-top:6px}
+
+.user-form button{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:6px}
+.user-list{list-style:none;padding:0;margin:0}
+.user-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid #f1f5f9}
+.muted{color:var(--muted);font-size:0.9em}
+button.danger{background:transparent;color:var(--danger);border:1px solid rgba(239,68,68,0.12);padding:6px 8px;border-radius:6px}
+
+.toasts-root{position:fixed;right:16px;top:16px;display:flex;flex-direction:column;gap:8px;z-index:1000}
+.toast{padding:10px 14px;border-radius:8px;color:white;min-width:160px;box-shadow:0 4px 12px rgba(2,6,23,0.08)}
+.toast.info{background:#64748b}
+.toast.success{background:#10b981}
+.toast.error{background:#ef4444}
+
+.form-hint{font-size:0.85em;color:var(--muted);margin-top:6px}
+
+.toast{display:flex;align-items:center;justify-content:space-between;gap:8px;animation:toast-in 300ms ease}
+.toast .toast-close{background:transparent;border:none;color:rgba(255,255,255,0.9);font-size:14px;cursor:pointer}
+
+@keyframes toast-in{from{transform:translateY(-8px);opacity:0}to{transform:translateY(0);opacity:1}}

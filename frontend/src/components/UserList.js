@@ -3,10 +3,14 @@ import axios from 'axios';
 
 export default function UserList({ showToast }) {
   const [users, setUsers] = useState([]);
-  const [name, setName] = useState('');
+  const [firstname, setFirstname] = useState('');
+  const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
+  const [age, setAge] = useState('');
+  const [userID, setUserID] = useState('');
   const [editingId, setEditingId] = useState(null);
-  const [editName, setEditName] = useState('');
+  const [editFirstname, setEditFirstname] = useState('');
+  const [editLastname, setEditLastname] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [addError, setAddError] = useState('');
   const [editError, setEditError] = useState('');
@@ -24,15 +28,15 @@ export default function UserList({ showToast }) {
 
   async function addUser(e) {
     e.preventDefault();
-    const err = validate(name, email);
+    const err = validate(firstname, lastname, email);
     if (err) {
       setAddError(err);
       return;
     }
     setAddError('');
     try {
-      const res = await axios.post(`${apiBase}/users`, { name, email });
-      setName(''); setEmail('');
+      const res = await axios.post(`${apiBase}/users`, { firstname, lastname, email, age, userID });
+      setFirstname(''); setLastname(''); setEmail(''); setAge(''); setUserID('');
       fetchUsers();
       if (showToast) showToast('User created', 'success');
     } catch (err) {
@@ -125,8 +129,11 @@ export default function UserList({ showToast }) {
     <div className="card">
       <form onSubmit={addUser} className="user-form">
         <div className="form-row">
-          <input value={name} onChange={e => setName(e.target.value)} placeholder="Name" />
+          <input value={firstname} onChange={e => setFirstname(e.target.value)} placeholder="First Name" />
+          <input value={lastname} onChange={e => setLastname(e.target.value)} placeholder="Last Name" />
           <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
+          <input value={age} onChange={e => setAge(e.target.value)} placeholder="Age" />
+          <input value={userID} onChange={e => setUserID(e.target.value)} placeholder="User ID" />
           <button type="submit" className="btn primary">Add</button>
         </div>
         {addError && <div className="error-text">{addError}</div>}
@@ -137,7 +144,8 @@ export default function UserList({ showToast }) {
           <li key={u._id} className="user-item">
             {editingId === u._id ? (
               <div className="edit-row">
-                <input className="edit-input" value={editName} onChange={e=>setEditName(e.target.value)} />
+                <input className="edit-input" value={editFirstname} onChange={e=>setEditFirstname(e.target.value)} />
+                <input className="edit-input" value={editLastname} onChange={e=>setEditLastname(e.target.value)} />
                 <input className="edit-input" value={editEmail} onChange={e=>setEditEmail(e.target.value)} />
                 <button className="btn primary" onClick={()=>updateUser(u._id)}>Update</button>
                 <button className="btn secondary" onClick={()=>{setEditingId(null); setEditName(''); setEditEmail(''); setEditError('');}}>Cancel</button>

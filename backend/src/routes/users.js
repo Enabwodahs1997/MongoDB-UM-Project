@@ -17,7 +17,10 @@ router.get('/check-email', async (req, res) => {
 // Validation helper
 function validateUserPayload(payload) {
   const errors = {};
-  if (!payload.name || String(payload.name).trim().length < 2) errors.name = 'Name must be at least 2 characters.';
+  if (!payload.firstname || String(payload.firstname).trim().length < 2) errors.firstname = 'First name must be at least 2 characters.';
+  if (!payload.lastname || String(payload.lastname).trim().length < 2) errors.lastname = 'Last name must be at least 2 characters.';
+  if (!payload.userID || String(payload.userID).trim().length < 3) errors.userID = 'User ID must be at least 3 characters.';
+  if (payload.age !== undefined && payload.age !== '' && (Number.isNaN(Number(payload.age)) || Number(payload.age) < 0)) errors.age = 'Age must be a non-negative number.';
   const email = payload.email || '';
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRe.test(email)) errors.email = 'Invalid email address.';
@@ -31,8 +34,10 @@ router.post('/', async (req, res) => {
     if (validation) return res.status(400).json({ errors: validation });
 
     // Check uniqueness
-    const exists = await User.findOne({ email: req.body.email });
-    if (exists) return res.status(409).json({ errors: { email: 'Email already in use' } });
+    const emailExists = await User.findOne({ email: req.body.email });
+    if (emailExists) return res.status(409).json({ errors: { email: 'Email already in use' } });
+    const userIdExists = await User.findOne({ userID: req.body.userID });
+    if (userIdExists) return res.status(409).json({ errors: { userID: 'User ID already in use' } });
 
     const user = new User(req.body);
     await user.save();
@@ -75,6 +80,13 @@ router.put('/:id', async (req, res) => {
       const other = await User.findOne({ email: req.body.email });
       if (other && other._id.toString() !== req.params.id) {
         return res.status(409).json({ errors: { email: 'Email already in use' } });
+      }
+    }
+
+    if (req.body.userID) {
+      const userIdOther = await User.findOne({ userID: req.body.userID });
+      if (userIdOther && userIdOther._id.toString() !== req.params.id) {
+        return res.status(409).json({ errors: { userID: 'User ID already in use' } });
       }
     }
 

@@ -12,6 +12,8 @@ export default function UserList({ showToast }) {
   const [editFirstname, setEditFirstname] = useState('');
   const [editLastname, setEditLastname] = useState('');
   const [editEmail, setEditEmail] = useState('');
+  const [editAge, setEditAge] = useState('');
+  const [editUserID, setEditUserID] = useState('');
   const [addError, setAddError] = useState('');
   const [editError, setEditError] = useState('');
 
@@ -48,15 +50,16 @@ export default function UserList({ showToast }) {
 
   async function updateUser(id) {
     try {
-      const err = validate(editName, editEmail);
+      const err = validate(editFirstname, editLastname, editEmail);
       if (err) {
         setEditError(err);
         return;
       }
       setEditError('');
-      await axios.put(`${apiBase}/users/${id}`, { name: editName, email: editEmail });
+      await axios.put(`${apiBase}/users/${id}`, { firstname: editFirstname, lastname: editLastname, email: editEmail, age: editAge, userID: editUserID });
       setEditingId(null);
-      setEditName('');
+      setEditFirstname('');
+      setEditLastname('');
       setEditEmail('');
       fetchUsers();
       if (showToast) showToast('User updated', 'success');
@@ -67,8 +70,9 @@ export default function UserList({ showToast }) {
     }
   }
 
-  function validate(nameVal, emailVal) {
-    if (!nameVal || nameVal.trim().length < 2) return 'Name must be at least 2 characters.';
+  function validate(firstnameVal, lastnameVal, emailVal) {
+    if (!firstnameVal || firstnameVal.trim().length < 2) return 'First name must be at least 2 characters.';
+    if (!lastnameVal || lastnameVal.trim().length < 2) return 'Last name must be at least 2 characters.';
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailVal || !emailRe.test(emailVal)) return 'Please enter a valid email address.';
     return '';
@@ -147,18 +151,21 @@ export default function UserList({ showToast }) {
                 <input className="edit-input" value={editFirstname} onChange={e=>setEditFirstname(e.target.value)} />
                 <input className="edit-input" value={editLastname} onChange={e=>setEditLastname(e.target.value)} />
                 <input className="edit-input" value={editEmail} onChange={e=>setEditEmail(e.target.value)} />
+                <input className="edit-input" value={editAge} onChange={e=>setEditAge(e.target.value)} />
+                <input className="edit-input" value={editUserID} onChange={e=>setEditUserID(e.target.value)} />
                 <button className="btn primary" onClick={()=>updateUser(u._id)}>Update</button>
-                <button className="btn secondary" onClick={()=>{setEditingId(null); setEditName(''); setEditEmail(''); setEditError('');}}>Cancel</button>
+                <button className="btn secondary" onClick={()=>{setEditingId(null); setEditFirstname(''); setEditLastname(''); setEditEmail(''); setEditAge(''); setEditUserID(''); setEditError('');}}>Cancel</button>
                 {editError && <div className="error-text">{editError}</div>}
               </div>
             ) : (
               <>
                 <div>
-                  <strong>{u.name}</strong>
+                  <strong>{u.firstname} {u.lastname}</strong>
                   <div className="muted">{u.email}</div>
+                  <div className="muted">Age: {u.age || 'N/A'} | ID: {u.userID}</div>
                 </div>
                 <div>
-                  <button onClick={() => { setEditingId(u._id); setEditName(u.name); setEditEmail(u.email); }}>Edit</button>
+                  <button onClick={() => { setEditingId(u._id); setEditFirstname(u.firstname); setEditLastname(u.lastname); setEditEmail(u.email); setEditAge(u.age || ''); setEditUserID(u.userID); }}>Edit</button>
                   <button className="danger" onClick={() => deleteUser(u._id)}>Delete</button>
                 </div>
               </>

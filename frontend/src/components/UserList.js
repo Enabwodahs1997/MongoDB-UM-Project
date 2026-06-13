@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import SearchBar from './SearchBar';
+import Sort from './Sort';
 
 export default function UserList({ showToast }) {
   const [users, setUsers] = useState([]);
@@ -22,6 +23,19 @@ export default function UserList({ showToast }) {
 
   const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
+const [sortField, setSortField] = useState('');
+const [sortOrder, setSortOrder] = useState('asc');
+
+function handleSortFieldChange(field) {
+  setSortField(field);
+  fetchUsers(field, sortOrder);
+}
+
+function handleSortOrderChange(order) {
+  setSortOrder(order);
+  fetchUsers(sortField, order);
+}
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -42,8 +56,13 @@ export default function UserList({ showToast }) {
     setFilteredUsers(filtered);
   }, [searchTerm, users]);
 
-  async function fetchUsers() {
-    const res = await axios.get(`${apiBase}/users`);
+  async function fetchUsers(sortField = '', sortOrder = 'asc') {
+    const res = await axios.get(`${apiBase}/users`, {
+      params: {
+        sortField,
+        sortOrder
+      }
+    });
     setUsers(res.data);
   }
 
@@ -150,6 +169,9 @@ export default function UserList({ showToast }) {
 
   return (
     <>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <Sort sortField={sortField} sortOrder={sortOrder} onSortFieldChange={handleSortFieldChange} onSortOrderChange={handleSortOrderChange} />
+    </div>
       <div className="search-container">
         <SearchBar placeholder="Search by name, email, or ID..." value={searchTerm} onChange={setSearchTerm} />
         <div style={{ height: '12px' }}></div>

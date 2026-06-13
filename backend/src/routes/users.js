@@ -51,7 +51,11 @@ router.post('/', async (req, res) => {
 // Read all users
 router.get('/', async (req, res) => {
   try {
-    const users = await User.find().sort({ createdAt: -1 });
+    const allowedSortFields = new Set(['firstname', 'lastname', 'email', 'age', 'userID', 'createdAt']);
+    const sortField = allowedSortFields.has(req.query.sortField) ? req.query.sortField : 'createdAt';
+    const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
+
+    const users = await User.find().sort({ [sortField]: sortOrder });
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import SearchBar from './SearchBar';
 
 export default function UserList({ showToast }) {
   const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [firstname, setFirstname] = useState('');
   const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
@@ -22,6 +25,22 @@ export default function UserList({ showToast }) {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // Filter users based on search term
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredUsers(users);
+      return;
+    }
+    const term = searchTerm.toLowerCase();
+    const filtered = users.filter(u =>
+      u.firstname.toLowerCase().includes(term) ||
+      u.lastname.toLowerCase().includes(term) ||
+      u.email.toLowerCase().includes(term) ||
+      u.userID.toLowerCase().includes(term)
+    );
+    setFilteredUsers(filtered);
+  }, [searchTerm, users]);
 
   async function fetchUsers() {
     const res = await axios.get(`${apiBase}/users`);
@@ -130,49 +149,54 @@ export default function UserList({ showToast }) {
   }, [editEmail, editingId]);
 
   return (
-    <div className="card">
-      <form onSubmit={addUser} className="user-form">
-        <div className="form-row">
-          <input value={firstname} onChange={e => setFirstname(e.target.value)} placeholder="First Name" />
-          <input value={lastname} onChange={e => setLastname(e.target.value)} placeholder="Last Name" />
-          <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
-          <input value={age} onChange={e => setAge(e.target.value)} placeholder="Age" />
-          <input value={userID} onChange={e => setUserID(e.target.value)} placeholder="User ID" />
-          <button type="submit" className="btn primary">Add</button>
-        </div>
-        {addError && <div className="error-text">{addError}</div>}
-      </form>
+    <>
+      <div className="search-container">
+        <SearchBar placeholder="Search by name, email, or ID..." value={searchTerm} onChange={setSearchTerm} />
+        <div style={{ height: '12px' }}></div>
+      </div>
+      <div className="card">
+              <form onSubmit={addUser} className="user-form">
+                  <div className="form-row">
+                      <input value={firstname} onChange={e => setFirstname(e.target.value)} placeholder="First Name" />
+                      <input value={lastname} onChange={e => setLastname(e.target.value)} placeholder="Last Name" />
+                      <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" />
+                      <input value={age} onChange={e => setAge(e.target.value)} placeholder="Age" />
+                      <input value={userID} onChange={e => setUserID(e.target.value)} placeholder="User ID" />
+                      <button type="submit" className="btn primary">Add</button>
+                  </div>
+                  {addError && <div className="error-text">{addError}</div>}
+              </form>
 
-      <ul className="user-list">
-        {users.map(u => (
-          <li key={u._id} className="user-item">
-            {editingId === u._id ? (
-              <div className="edit-row">
-                <input className="edit-input" value={editFirstname} onChange={e=>setEditFirstname(e.target.value)} />
-                <input className="edit-input" value={editLastname} onChange={e=>setEditLastname(e.target.value)} />
-                <input className="edit-input" value={editEmail} onChange={e=>setEditEmail(e.target.value)} />
-                <input className="edit-input" value={editAge} onChange={e=>setEditAge(e.target.value)} />
-                <input className="edit-input" value={editUserID} onChange={e=>setEditUserID(e.target.value)} />
-                <button className="btn primary" onClick={()=>updateUser(u._id)}>Update</button>
-                <button className="btn secondary" onClick={()=>{setEditingId(null); setEditFirstname(''); setEditLastname(''); setEditEmail(''); setEditAge(''); setEditUserID(''); setEditError('');}}>Cancel</button>
-                {editError && <div className="error-text">{editError}</div>}
-              </div>
-            ) : (
-              <>
-                <div>
-                  <strong>{u.firstname} {u.lastname}</strong>
-                  <div className="muted">{u.email}</div>
-                  <div className="muted">Age: {u.age || 'N/A'} | ID: {u.userID}</div>
-                </div>
-                <div>
-                  <button onClick={() => { setEditingId(u._id); setEditFirstname(u.firstname); setEditLastname(u.lastname); setEditEmail(u.email); setEditAge(u.age || ''); setEditUserID(u.userID); }}>Edit</button>
-                  <button className="danger" onClick={() => deleteUser(u._id)}>Delete</button>
-                </div>
-              </>
-            )}
-          </li>
-        ))}
-      </ul>
-    </div>
+              <ul className="user-list">
+                  {filteredUsers.map(u => (
+                      <li key={u._id} className="user-item">
+                          {editingId === u._id ? (
+                              <div className="edit-row">
+                                  <input className="edit-input" value={editFirstname} onChange={e => setEditFirstname(e.target.value)} />
+                                  <input className="edit-input" value={editLastname} onChange={e => setEditLastname(e.target.value)} />
+                                  <input className="edit-input" value={editEmail} onChange={e => setEditEmail(e.target.value)} />
+                                  <input className="edit-input" value={editAge} onChange={e => setEditAge(e.target.value)} />
+                                  <input className="edit-input" value={editUserID} onChange={e => setEditUserID(e.target.value)} />
+                                  <button className="btn primary" onClick={() => updateUser(u._id)}>Update</button>
+                                  <button className="btn secondary" onClick={() => { setEditingId(null); setEditFirstname(''); setEditLastname(''); setEditEmail(''); setEditAge(''); setEditUserID(''); setEditError(''); } }>Cancel</button>
+                                  {editError && <div className="error-text">{editError}</div>}
+                              </div>
+                          ) : (
+                              <>
+                                  <div>
+                                      <strong>{u.firstname} {u.lastname}</strong>
+                                      <div className="muted">{u.email}</div>
+                                      <div className="muted">Age: {u.age || 'N/A'} | ID: {u.userID}</div>
+                                  </div>
+                                  <div>
+                                      <button onClick={() => { setEditingId(u._id); setEditFirstname(u.firstname); setEditLastname(u.lastname); setEditEmail(u.email); setEditAge(u.age || ''); setEditUserID(u.userID); } }>Edit</button>
+                                      <button className="danger" onClick={() => deleteUser(u._id)}>Delete</button>
+                                  </div>
+                              </>
+                          )}
+                      </li>
+                  ))}
+              </ul>
+          </div></>
   );
 }
